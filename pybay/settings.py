@@ -140,8 +140,10 @@ INSTALLED_APPS = [
     "eventlog",
     "markitup",
     "metron",
+    "ordered_model",
     "taggit",
     "timezones",
+
 
     # symposion
     "symposion.sponsorship",
@@ -157,6 +159,7 @@ INSTALLED_APPS = [
     'pybay.faqs',
     'pybay.flatpages_ext.apps.FlatpagesExtConfig',
     'crispy_forms',
+    'featured_speakers',
 ]
 
 # A sample logging configuration. The only tangible logging
@@ -268,6 +271,7 @@ if os.environ.get('SMTP_PWD', ''):
     EMAIL_HOST_PASSWORD = b64decode(os.environ.get('SMTP_PWD', '')).decode('utf-8')
     EMAIL_USE_TLS = True
 
+DEFAULT_FALLBACK_IMAGE = "new/img/unknown-speaker.png"
 
 PROJECT_DATA = dict(
     cfp_close_date='June 17')
