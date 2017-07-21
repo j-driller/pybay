@@ -1,16 +1,14 @@
 {% if sponsors %}
   <div class="sl-group {{ color }}-sponsors">
 
-    <section class="subscribe-2">
-      <div class="container">
-        <div class="row">
-          <div class="col-sm-12 text-center sl-group-heading" >
-            {% if image %}<p>{{ image }}</p>{% endif %}
-            <h1 class="large-h1">{{ title }}</h1>
-          </div>
+    <div class="container">
+      <div class="row">
+        <div class="col-sm-12 text-center sl-group-heading" >
+          {% if image %}<p>{{ image }}</p>{% endif %}
+          <h1 class="large-h1">{{ title }}</h1>
         </div>
       </div>
-    </section>
+    </div>
 
     <section class="sponsor-list">
       {% for sponsor in sponsors %}
@@ -40,6 +38,5 @@
         </div>
       {% endfor %}
     </section>
-
-  </div>
+</div>
 {% endif %}

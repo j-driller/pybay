@@ -52,6 +52,7 @@ class Proposal(ProposalBase):
     meetup_talk = models.CharField(choices=MEETUP_CHOICES, max_length=100, default="No")
     speaker_and_talk_history = models.TextField()
     speaker_website = models.TextField(null=True, blank=True)
+    location_override = models.CharField(max_length=200, blank=True)
 
     class Meta:
         abstract = True
@@ -65,3 +66,6 @@ class TalkProposal(Proposal):
 class TutorialProposal(Proposal):
     class Meta:
         verbose_name = "tutorial proposal"
+
+    ticket_price = models.CharField(max_length=50, blank=True)
+    sold_out = models.BooleanField(default=False)

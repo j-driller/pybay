@@ -91,9 +91,12 @@ def pybay_speakers_detail(request, speaker_slug):
         return HttpResponseNotFound()
 
     # NOTE: Cannot perform reverse lookup (speaker.talk_proposals) for some reason.
-    speaker_approved_talks = TalkProposal.objects.filter(
-        speaker=speaker
-    ).filter(result__status='accepted')
+    speaker_approved_talks = [
+        prop.talkproposal if hasattr(prop, 'talkproposal') else prop.tutorialproposal
+        for prop in Proposal.objects.filter(speaker=speaker)
+        .filter(result__status='accepted')
+        .prefetch_related('talkproposal', 'tutorialproposal')
+    ]
 
     return render(request, 'frontend/speakers_detail.html',
                   {'speaker': speaker, 'talks': speaker_approved_talks,
@@ -101,7 +104,7 @@ def pybay_speakers_detail(request, speaker_slug):
 
 
 def pybay_speakers_list(request):
-    accepted_proposals = TalkProposal.objects.filter(result__status='accepted')
+    accepted_proposals = Proposal.objects.filter(result__status='accepted')
     speakers = []
     for proposal in accepted_proposals:
         speakers += list(proposal.speakers())
@@ -109,8 +112,13 @@ def pybay_speakers_list(request):
     speakers = list(set(speakers))  # filters duplicate speakers
     speakers = sorted(speakers, key=lambda i: i.name)  # sorts alphabetically
 
+    # Make them chunks of 2
+    chunks = []
+    for chunk_idx in range(0, len(speakers), 2):
+        chunks.append(speakers[chunk_idx:chunk_idx + 2])
+
     return render(request, 'frontend/speakers_list.html', {
-        'speakers': speakers
+        'chunks': chunks
     })
 
 
@@ -166,15 +174,25 @@ def proposal_detail(request, proposal_id):
 def _day_slots(day):
     groupby = itertools.groupby(day.slot_set.all(), lambda slot: slot.start)
     for time, grouper in groupby:
-        slots = list(grouper)
+        slots = sorted(grouper, key=lambda slot: slot.rooms[0].order if slot.rooms else 0)
         kind = slots[0].kind if len(slots) == 1 and slots[0].content_override else ''
         yield time, slots, kind
 
 
 FILTER_CATEGORIES = [
-    "All things Web",
-    "DevOps",
+    ("Fundamentals", ['fundamentals']),
+    ("Data", ['dealingwithdata']),
+    ("Python at Scale", ['performantpython', 'scalablepython', 'devops']),
 ]
+
+ALLOWED_CATEGORIES = [
+    slug
+    for _, slugs in FILTER_CATEGORIES
+    for slug in slugs
+]
+
+FILTER_CATEGORIES.append(('Misc', ['other']))
+FILTER_CATEGORIES.append(('Beginner-friendly', ['level-1']))
 
 
 def pybay_schedule(request):
@@ -192,15 +210,10 @@ def pybay_schedule(request):
         for schedule in schedules
     ]
 
-    filters = [
-        (name.lower().replace(' ', ''), name)
-        for name in FILTER_CATEGORIES
-    ]
-
     ctx = {
         'schedules': schedules,
-        'filters' :  filters + [('other', 'Other'), ('level-1', 'Beginner-friendly')],
-        'allowed_categories': [slug for slug, _ in filters]
+        'filters' :  FILTER_CATEGORIES,
+        'allowed_categories': ALLOWED_CATEGORIES,
     }
 
     return render(request, "frontend/schedule.html", ctx)

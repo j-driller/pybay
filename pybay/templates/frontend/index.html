@@ -1,5 +1,6 @@
 {% extends 'frontend/base.html' %}
-{% load static %}
+{% load staticfiles %}
+{% load featured_speakers %}
 
 {% block headeroption %}
 		<div class="main-container"><a id="home" class="in-page-link"></a>
@@ -20,7 +21,8 @@
 							<div class="row">
 								<div class="col-md-8 col-md-offset-2 col-sm-10 col-sm-offset-1 text-center">
 									<img alt="logo" class="logo" src="{% static 'new/img/PB_PNG.png' %}">
-									<span class="uppercase text-white">August 10th to 13th -  San Francisco, California</span>
+									<span class="uppercase text-white">August 10-11 <strong>Workshops</strong> | August 11-13 <strong>Talks</strong><br />
+                  San Francisco, California</span>
                                     <span class="large-h1 video-tagline">Bringing together Python's most forward-thinking developers</span>
                                     {% if countdown %}
                                     <span class="video-moreinfo">{{ countdown.text }}</span>
@@ -81,6 +83,17 @@
 				</div><!--end of row-->
         </div><!--end of container-->
     </section>
+
+    <!--Count Down Ends  -->
+    <!-- Featured speakers Begins -->
+    <div class="container">
+        <div class="row">
+          <div class="col-sm-12">
+            {% featured_speakers %}
+          </div>
+        </div>
+      </div>
+    <!--Video 2016 Starts -->
     <!--Event Focus Ends -->
     <!--Count Down Starts  -->
     <section class="strip-divider primary-overlay countdown-divider">
@@ -118,9 +131,7 @@
             </div><!--end of row-->
          </div>><!--end of container-->
     </section>
-    <!--Count Down Ends  -->
-    <!--Video 2016 Starts -->
-    <section >
+    <section>
         <div class="container">
             <div class="row">
                 <div class="col-md-12">
@@ -128,14 +139,13 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col-md-5 col-sm-6">
+                <div class="col-md-6 col-sm-6">
                     <div class="youtube"
                         id="bKMUUiioi5g"
-                        data-params=""
-                        style="width: 560px; height: 315px;">
+                        data-params="">
                     </div>
                 </div>
-                <div class="col-md-5 col-sm-8 col-md-offset-2 col-sm-offset-1">
+                <div class="col-md-5 col-sm-6 col-md-offset-1">
                     <div class="testimonials-slider">
                         <ul class="slides">
                             <li class="testimonials-slide">
@@ -170,7 +180,7 @@
                                </li>
                         </ul>
                     </div><!--testimonial slider-->
-				    <a href="https://twitter.com/py_bay" target="_blank" class="btn"><i class="icon social_twitter">&nbsp;</i> Follow PyBay</a>
+				    <a href="https://twitter.com/py_bay" target="_blank" class="btn" rel="noopener noreferrer"><i class="icon social_twitter">&nbsp;</i> Follow PyBay</a>
 				</div><!--end of col-->
             </div><!--end of row-->
         </div><!--end of container-->
@@ -287,15 +297,6 @@
         </div><!--end of container-->
     </section>
     <!--Previous Meetup Ends -->
-    <!-- featured speakers -->
-    <div class="container">
-        <div class="row">
-            <div class="col-sm-12">
-              {% load featured_tags %}
-              {% featured_speakers %}
-            </div>
-        </div>
-    </div>
     <!--Subscribe to stay tune Starts -->
     <section class="subscribe-2">
         <div class="container">

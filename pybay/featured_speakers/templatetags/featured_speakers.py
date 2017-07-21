@@ -1,6 +1,6 @@
 from django import template
 
-from featured_speakers.models import FeaturedSpeaker
+from pybay.featured_speakers.models import FeaturedSpeaker
 
 register = template.Library()
 

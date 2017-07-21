@@ -1,5 +1,7 @@
 {% extends 'frontend/base.html' %}
-{% load static %}
+{% load staticfiles %}
+
+{% block body_class %}{{ block.super }} registration-page{% endblock %}
 
 {% block content %}
 <a id="top"></a>
@@ -58,6 +60,7 @@
 </section>
 
     <div class="container">
+        <a name="tickets"></a>
         <div class="row">
         <p></p>
             <div class="col-md-10 col-md-offset-1">
@@ -69,33 +72,33 @@
                 <!-- for basic styles include a link to our stylesheet. -->
                 <!-- fancy something more adventurous? Copy it and roll your own! -->
                 <link rel="stylesheet" type="text/css" href='https://css.tito.io/v1.1' />
+                <script src='https://js.tito.io/v1'></script>
             </div>
         </div>
     </div>
 
 {% block python-corps %}
 <section>
-    <div style="margin-bottom: 100px;" class="row">
-        <div class="col-xm-12 text-center">
+    <div style="margin-bottom: 100px;">
+        <div class="text-center">
+            <a name="supporter"></a>
             <h1>Committed to Your Education</h1>
-            <div class="container">
-                <div class="row">
-                    <!-- repeat this div below for other logos -->
-                    <div class="col-md-6 col-md-2">
-                        <a href="https://hackbrightacademy.com/">
-                            <img class="img-responsive" src="{% static 'new/img/sponsorlogo/hackbright.png' %}"/>
-                        </a>
-                    </div>
-                    <div class="col-md-6 col-md-2">
-                        <a href="http://www.cisco.com/">
-                            <img class="img-responsive" src="{% static 'new/img/sponsorlogo/cisco.png' %}"/>
-                        </a>
-                    </div>
-                </div>
+            <div class="container python-corps">
+                  <!-- repeat this div below for other logos -->
+                  <div class="python-corp col-md-6 col-md-2">
+                      <a href="https://hackbrightacademy.com/">
+                          <img class="img-responsive" src="{% static 'new/img/sponsorlogo/hackbright.png' %}"/>
+                      </a>
+                  </div>
+                  <div class="python-corp col-md-6 col-md-2">
+                      <a href="http://www.cisco.com/">
+                          <img class="img-responsive" src="{% static 'new/img/sponsorlogo/cisco.png' %}"/>
+                      </a>
+                  </div>
             </div>
         </div>
         </br>
-        <div class="row">
+        <div>
             <div class="col-sm-12 text-center">
                 <p>These companies use Python, and support their employees continuing education. Interested in listing your company here? <a class="inner-link" href="{% url 'pybay_faq' %}">Get in touch.</a></p>
             </div>
@@ -120,9 +123,9 @@
                     <img alt="Venue" src="{% static 'new/img/owens.jpg' %}">
                     <h3>Main Conference Venue</h3>
                     <p>
-                        <a href="http://www.acc-missionbayconferencecenter.com">
+                        <a href="http://www.acc-missionbayconferencecenter.com" target="_blank" rel="noopener noreferrer">
                             <strong>UCSF Mission Bay Conference Center</strong></a><br>
-                        1500 Owens Street,&nbsp;<br>
+                        1675 Owens Street,&nbsp;<br>
                         San Francisco, CA 94158<br><br>
                     <a href="https://goo.gl/maps/xV8Bobh5Qvj">See Map</a>
                     </p>
@@ -130,10 +133,13 @@
             </div>
             <div class="col-md-6 col-sm-6">
                 <div class="info-box">
-                    <img alt="Venue" src="{% static 'new/img/Question-Mark.jpg' %}">
+                    <img alt="Venue" src="{% static 'new/img/nerdwallet.jpg' %}">
                     <h3>Pre-Conference Workshops Venue</h3>
                     <p>
-                        TBD
+                        <a href="http://www.acc-missionbayconferencecenter.com" target="_blank" rel="noopener noreferrer">
+                        <strong>NerdWallet</strong></a><br />
+                        875 Stevenston Street, 5th floor <br/>
+                        San Francisco, CA 94103 
                     </p>
                 </div>
             </div>

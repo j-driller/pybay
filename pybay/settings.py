@@ -19,6 +19,8 @@ DATABASES = {
 
 ALLOWED_HOSTS = []
 
+CANONICAL_HOST = 'https://pybay.com'
+
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 # although not all choices may be available on all operating systems.
@@ -75,6 +77,8 @@ STATICFILES_FINDERS = [
     "django.contrib.staticfiles.finders.FileSystemFinder",
     "django.contrib.staticfiles.finders.AppDirectoriesFinder",
 ]
+
+STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesStorage'
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = "some thing pybay2017 "
@@ -138,11 +142,13 @@ INSTALLED_APPS = [
     "account",
     "easy_thumbnails",
     "eventlog",
+    "django_markup",
     "markitup",
     "metron",
     "ordered_model",
     "taggit",
     "timezones",
+    "columns",
 
 
     # symposion
@@ -158,8 +164,8 @@ INSTALLED_APPS = [
     'pybay.proposals',
     'pybay.faqs',
     'pybay.flatpages_ext.apps.FlatpagesExtConfig',
+    'pybay.featured_speakers',
     'crispy_forms',
-    'featured_speakers',
 ]
 
 # A sample logging configuration. The only tangible logging
