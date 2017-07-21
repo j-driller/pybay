@@ -1,0 +1,58 @@
+{% extends 'frontend/base.html' %}
+{% load static %}
+{% load thumbnail %}
+{% block content %}
+{% load get_speaker_url_with_fallback %}
+{% load slot_desc %}
+
+<section>
+   <div class="container" style="padding-top: 150px;">
+     <div class="row">
+       <div class="col-sm-6 col-md-4">
+           <a href="{% speaker_url_with_fallback speaker 360 %}">
+              <div>
+                  <img class="img-responsive" height=360 alt="{{ speaker.name }}" src="{% speaker_url_with_fallback speaker 360 %}">
+              </div>
+           </a>
+       </div>
+       <div class="col-sm-6 col-md-7">
+           <h1><strong>{{ speaker.name }}</strong></h1>
+          <p class="lead">{{ speaker.biography_html | safe }}</p>
+          <a style="margin-top: 20px;" href="{{ speaker_website }}" class="btn">Speaker home page</a>
+       </div>
+     </div>
+   </div>
+</section>
+
+{% for talk in talks %}
+    <section class="inline-video">
+            <div class="container">
+                    <div class="row">
+                            <div class="col-sm-12">
+                                <h2><strong>{{ talk.title }}</strong></h2>
+                                {{ talk.category | capfirst }}, {{ talk.get_audience_level_display | capfirst }}
+                            </div>
+                            {% slot_desc talk as talk_slot %}
+                            {% if talk_slot %}
+                              <a href="{% url 'pybay_schedule' %}" class="btn">{{ talk_slot }}</a>
+                            {% endif %}
+                    </div>
+
+                    <div class="row">
+                            <div class="col-md-11">
+                                <p class="lead"></p>
+                                <p class="lead">
+                                    <h3>Description</h3>
+                                    {{ talk.description }}
+                                </p>
+                                <p class="lead">
+                                    <h3>Abstract</h3>
+                                    {{ talk.abstract }}
+                                </p>
+                            </div>
+                    </div>
+            </div>
+    </section>
+{% endfor %}
+
+{% endblock content %}

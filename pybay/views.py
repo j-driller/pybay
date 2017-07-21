@@ -1,16 +1,26 @@
 import json
+import itertools
 
 from django.shortcuts import render
-from django.http import HttpResponse, HttpResponseForbidden
+from django.http import (HttpResponse, HttpResponseForbidden,
+                         HttpResponseNotFound)
 from django.views.generic import TemplateView
+from django.db.models import Prefetch
 
 from .forms import CallForProposalForm
 from pybay.faqs.models import Faq, Category
 from symposion.sponsorship.models import Sponsor
-from pybay.proposals.models import Proposal, TalkProposal, TutorialProposal
+from pybay.proposals.models import TalkProposal, Proposal
+from pybay.utils import get_accepted_speaker_by_slug
+from symposion.speakers.models import Speaker
+from symposion.schedule.models import Schedule
 
 from collections import defaultdict
 from django.conf import settings
+
+from logging import getLogger
+
+log = getLogger(__file__)
 
 cfp_close_date = settings.PROJECT_DATA['cfp_close_date']
 
@@ -71,23 +81,48 @@ def pybay_cfp_create(request):
             {'form': form, 'cfp_close_date': cfp_close_date})
 
 
+def pybay_speakers_detail(request, speaker_slug):
+
+    # Fetch speaker
+    try:
+        speaker = get_accepted_speaker_by_slug(speaker_slug)
+    except Speaker.DoesNotExist:
+        log.error("Speaker %s does not have any approved talks or does not exist", speaker_slug)
+        return HttpResponseNotFound()
+
+    # NOTE: Cannot perform reverse lookup (speaker.talk_proposals) for some reason.
+    speaker_approved_talks = [
+        prop.talkproposal if hasattr(prop, 'talkproposal') else prop.tutorialproposal
+        for prop in Proposal.objects.filter(speaker=speaker)
+        .filter(result__status='accepted')
+        .prefetch_related('talkproposal', 'tutorialproposal')
+    ]
+
+    return render(request, 'frontend/speakers_detail.html',
+                  {'speaker': speaker, 'talks': speaker_approved_talks,
+                   'speaker_website': speaker_approved_talks[0].speaker_website})
+
+
 def pybay_speakers_list(request):
-    accepted_proposals = Proposal.objects.filter(
-        result__status='accepted')
+    accepted_proposals = Proposal.objects.filter(result__status='accepted')
     speakers = []
     for proposal in accepted_proposals:
         speakers += list(proposal.speakers())
 
     speakers = list(set(speakers))  # filters duplicate speakers
-    speakers = filter(lambda s: s.photo, speakers)  # filters speakers without photo
     speakers = sorted(speakers, key=lambda i: i.name)  # sorts alphabetically
 
+    # Make them chunks of 2
+    chunks = []
+    for chunk_idx in range(0, len(speakers), 2):
+        chunks.append(speakers[chunk_idx:chunk_idx + 2])
+
     return render(request, 'frontend/speakers_list.html', {
-        'speakers': speakers
+        'chunks': chunks
     })
 
-def undecided_proposals(request):
 
+def undecided_proposals(request):
     api_token = request.GET.get('token')
     if api_token != settings.PYBAY_API_TOKEN:
         return HttpResponseForbidden()
@@ -123,8 +158,7 @@ def proposal_detail(request, proposal_id):
         "what_will_attendees_learn": proposal.what_will_attendees_learn,
         # "title": proposal.talk_links,
         # "title": proposal.meetup_talk,
-        # "title": proposal.speaker_and_talk_history,
-
+        "speaker_and_talk_history": proposal.speaker_and_talk_history,
     }
 
     result = {
@@ -135,3 +169,51 @@ def proposal_detail(request, proposal_id):
     return HttpResponse(
         json.dumps({'data': result}), content_type="application/json"
     )
+
+
+def _day_slots(day):
+    groupby = itertools.groupby(day.slot_set.all(), lambda slot: slot.start)
+    for time, grouper in groupby:
+        slots = sorted(grouper, key=lambda slot: slot.rooms[0].order if slot.rooms else 0)
+        kind = slots[0].kind if len(slots) == 1 and slots[0].content_override else ''
+        yield time, slots, kind
+
+
+FILTER_CATEGORIES = [
+    ("Fundamentals", ['fundamentals']),
+    ("Data", ['dealingwithdata']),
+    ("Python at Scale", ['performantpython', 'scalablepython', 'devops']),
+]
+
+ALLOWED_CATEGORIES = [
+    slug
+    for _, slugs in FILTER_CATEGORIES
+    for slug in slugs
+]
+
+FILTER_CATEGORIES.append(('Misc', ['other']))
+FILTER_CATEGORIES.append(('Beginner-friendly', ['level-1']))
+
+
+def pybay_schedule(request):
+    if request.user.is_staff:
+        schedules = Schedule.objects.filter(hidden=False)
+    else:
+        schedules = Schedule.objects.filter(published=True, hidden=False)
+
+    schedules.prefetch_related(
+        Prefetch('day_set__slot_set__presentation_set__proposal_base'),
+    )
+
+    schedules = [
+        [(day, _day_slots(day)) for day in schedule.day_set.all()]
+        for schedule in schedules
+    ]
+
+    ctx = {
+        'schedules': schedules,
+        'filters' :  FILTER_CATEGORIES,
+        'allowed_categories': ALLOWED_CATEGORIES,
+    }
+
+    return render(request, "frontend/schedule.html", ctx)
